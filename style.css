@@ -89,7 +89,13 @@ button:hover {
 }
 
 .type-char {
-    /* Add a smooth transition for the color property */
-    transition: color 0.5s ease-in-out;
+    /* Add a smooth transition for color and opacity */
+    transition: color 0.5s ease-in-out, opacity 0.3s ease-out;
+    opacity: 1; /* Ensure characters are visible by default */
+}
+
+/* When the parent has the fading-out class, make the characters inside invisible */
+.fading-out .type-char {
+    opacity: 0;
 }
 

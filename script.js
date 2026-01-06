@@ -11,6 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentText = ''; // The full string to be typed out.
     let charIndex = 0; // The index of the character to be typed next.
     let typingSpeed = 100; // Delay in milliseconds between characters for the setTimeout effect.
+    let typingTimeoutId; // To store the ID for the typing setTimeout loop.
     let animationFrameId; // To store the ID returned by requestAnimationFrame.
     let colorChangeIntervalId; // To store the ID for the color-changing setInterval.
     let isTypingComplete = false; // Flag to indicate if the typing animation has finished.
@@ -76,6 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
             cancelAnimationFrame(animationFrameId);
             animationFrameId = null;
         }
+        // No need to clear typingTimeoutId here, as the loop completes naturally.
         isTypingComplete = true; // Set flag indicating typing is done.
     }
 
@@ -84,7 +86,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (charIndex < currentText.length) {
             appendColoredChar(currentText.charAt(charIndex));
             charIndex++;
-            setTimeout(typeWriterEffectTimeout, typingSpeed);
+            // Store the ID so we can cancel it if the user restarts the animation.
+            typingTimeoutId = setTimeout(typeWriterEffectTimeout, typingSpeed);
         } else {
             stopTypingAnimations();
         }
@@ -117,20 +120,24 @@ document.addEventListener('DOMContentLoaded', () => {
         typewriterOutput.innerHTML = '';
         charIndex = 0;
         isTypingComplete = false;
-        // Clear the color-changing interval if it's running.
+        
+        // Clear all running timers and intervals to prevent conflicts.
         if (colorChangeIntervalId) {
             clearInterval(colorChangeIntervalId);
             colorChangeIntervalId = null;
         }
-        // Clear the typing animation frame if it's running.
         if (animationFrameId) {
             cancelAnimationFrame(animationFrameId);
             animationFrameId = null;
         }
+        if (typingTimeoutId) {
+            clearTimeout(typingTimeoutId);
+            typingTimeoutId = null;
+        }
     }
 
-    // Add an event listener to the "Start Typing" button.
-    startTypingButton.addEventListener('click', () => {
+    // This function contains the logic to start a new typing animation.
+    function startNewTypingAnimation() {
         resetTyping();
         currentText = typewriterTextarea.value;
         if (currentText.trim() === '') {
@@ -146,7 +153,29 @@ document.addEventListener('DOMContentLoaded', () => {
             lastFrameTime = 0;
             typeWriterEffectRaf(0);
         }
+    }
+
+    // Add an event listener to the "Start Typing" button.
+    startTypingButton.addEventListener('click', () => {
+        // If the output area is already empty, start immediately.
+        if (typewriterOutput.textContent.trim() === '') {
+            startNewTypingAnimation();
+            return;
+        }
+
+        // Function to run after the fade-out completes.
+        const onFadeOutComplete = () => {
+            typewriterOutput.classList.remove('fading-out');
+            startNewTypingAnimation();
+        }
+
+        // Wait for the CSS transition to finish before starting the new animation.
+        setTimeout(onFadeOutComplete, 300); // 300ms matches the opacity transition in style.css
+        
+        // Add the class to trigger the fade-out on the child .type-char elements.
+        typewriterOutput.classList.add('fading-out');
     });
+
 
     // --- Initial Setup ---
     typewriterTextarea.value = "Hello, world! This is a typewriter effect demonstration.";
