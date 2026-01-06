@@ -5,9 +5,13 @@ I want to deploy a GitHub Pages site that showcases a typewriter effect. I hope 
 - **Improve the colorful text effect by:**
   - Implementing a smoother color transition for each character (e.g., using CSS transitions or by animating HSL color values).
 - Enhance the user experience by implementing a fade-out animation for the previous typewriter text when a new typing effect is initiated, instead of an abrupt clear. This would involve CSS transitions/animations and JavaScript event listeners to synchronize the fade-out with the start of the new typing.
-
-## Future Plan
-- Implement a real-time typewriter effect that tracks user input (insertions and deletions) in the textarea and updates the animation as they type.
+- **Implement a real-time typewriter effect** that tracks user input (insertions and deletions) in the textarea and updates the animation as they type. This included:
+  - Refactoring for Real-time Mode Activation.
+  - Implementing an Input Event Listener.
+  - Developing a String Diffing Algorithm.
+  - Implementing Real-time DOM Updates for insertions and deletions.
+  - Integrating the existing color cycling and black-out effects.
+  - Managing concurrent effects and UI states between manual and real-time modes.
 
 ## Lessons Learned
 - **Bug Analysis (Typing Speed-Up):** A bug was discovered where repeatedly clicking "Start Typing" would accelerate the typing speed. The root cause was that new `setTimeout` loops (workers) were being created without clearing the old ones. These multiple concurrent workers all read from and advanced the same shared `charIndex` variable. This meant that within a single `typingSpeed` interval, multiple workers would each write a character, causing the typing speed to multiply.

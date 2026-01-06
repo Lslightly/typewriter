@@ -6,9 +6,12 @@ document.addEventListener('DOMContentLoaded', () => {
     const typewriterOutput = document.getElementById('typewriter-output');
     const effectTimeoutRadio = document.getElementById('effect-timeout');
     const effectRafRadio = document.getElementById('effect-raf');
+    const realtimeModeCheckbox = document.getElementById('realtime-mode'); // New checkbox reference
+    const effectSelectionDiv = document.querySelector('.effect-selection'); // Div containing radio buttons
 
     // Initialize variables to manage the typing process.
     let currentText = ''; // The full string to be typed out.
+    let previousText = ''; // Stores the text content from the textarea in the previous step (for diffing).
     let charIndex = 0; // The index of the character to be typed next.
     let typingSpeed = 100; // Delay in milliseconds between characters for the setTimeout effect.
     let typingTimeoutId; // To store the ID for the typing setTimeout loop.
@@ -31,14 +34,19 @@ document.addEventListener('DOMContentLoaded', () => {
         return colorPalette[Math.floor(Math.random() * colorPalette.length)];
     }
 
-    // This helper function creates a <span> for a character, timestamping it for the animation.
-    function appendColoredChar(char) {
+    // This helper function creates a <span> for a character, used by both manual and real-time modes.
+    function createCharSpan(char) {
         const span = document.createElement('span');
         span.className = 'type-char';
         span.textContent = char;
-        // Store the creation time on the element itself.
         span.dataset.createdAt = Date.now();
         span.style.color = getRandomColor();
+        return span;
+    }
+
+    // This helper function creates a <span> for a character and appends it to the output.
+    function appendColoredChar(char) {
+        const span = createCharSpan(char);
         typewriterOutput.appendChild(span);
     }
     
@@ -77,7 +85,6 @@ document.addEventListener('DOMContentLoaded', () => {
             cancelAnimationFrame(animationFrameId);
             animationFrameId = null;
         }
-        // No need to clear typingTimeoutId here, as the loop completes naturally.
         isTypingComplete = true; // Set flag indicating typing is done.
     }
 
@@ -138,6 +145,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // This function contains the logic to start a new typing animation.
     function startNewTypingAnimation() {
+        // Prevent starting if real-time mode is active, as it will handle typing.
+        if (realtimeModeCheckbox.checked) {
+            return;
+        }
+
         resetTyping();
         currentText = typewriterTextarea.value;
         if (currentText.trim() === '') {
@@ -154,6 +166,81 @@ document.addEventListener('DOMContentLoaded', () => {
             typeWriterEffectRaf(0);
         }
     }
+
+    // This function compares the old and new text and updates the DOM precisely.
+    function processRealtimeInput(newText, oldText) {
+        // 1. Find the first index where the strings differ.
+        let start = 0;
+        while (start < oldText.length && start < newText.length && oldText[start] === newText[start]) {
+            start++;
+        }
+
+        // 2. Find the last index where the strings differ.
+        let oldEnd = oldText.length - 1;
+        let newEnd = newText.length - 1;
+        while (oldEnd >= start && newEnd >= start && oldText[oldEnd] === newText[newEnd]) {
+            oldEnd--;
+            newEnd--;
+        }
+
+        // 3. Get the list of child nodes (the character spans).
+        const children = Array.from(typewriterOutput.childNodes);
+
+        // 4. Handle removals: Remove the differing part of the old text.
+        for (let i = start; i <= oldEnd; i++) {
+            if (children[i]) {
+                children[i].remove();
+            }
+        }
+
+        // 5. Handle additions: Insert the differing part of the new text.
+        const addedText = newText.substring(start, newEnd + 1);
+        const referenceNode = typewriterOutput.children[start] || null; // Node to insert before.
+
+        for (const char of addedText) {
+            const span = createCharSpan(char);
+            typewriterOutput.insertBefore(span, referenceNode);
+        }
+    }
+
+    // Function to toggle the state of UI elements based on real-time mode.
+    function toggleRealtimeMode(isEnabled) {
+        startTypingButton.disabled = isEnabled;
+        effectSelectionDiv.querySelectorAll('input').forEach(radio => radio.disabled = isEnabled);
+        
+        if (isEnabled) {
+            // If entering real-time mode, stop any ongoing manual animation.
+            resetTyping();
+            previousText = typewriterTextarea.value;
+            if (!colorChangeIntervalId) {
+                colorChangeIntervalId = setInterval(updateAllColors, 500);
+            }
+            // Immediately populate the display with the current text.
+            for (const char of previousText) {
+                appendColoredChar(char);
+            }
+        } else {
+            if (colorChangeIntervalId) {
+                clearInterval(colorChangeIntervalId);
+                colorChangeIntervalId = null;
+            }
+            resetTyping();
+        }
+    }
+
+    // Add event listener for the real-time mode checkbox.
+    realtimeModeCheckbox.addEventListener('change', (event) => {
+        toggleRealtimeMode(event.target.checked);
+    });
+
+    // Add event listener for real-time input in the textarea.
+    typewriterTextarea.addEventListener('input', () => {
+        if (realtimeModeCheckbox.checked) {
+            const newText = typewriterTextarea.value;
+            processRealtimeInput(newText, previousText); // Call the diffing function
+            previousText = newText; // Update previousText for the next input event
+        }
+    });
 
     // Add an event listener to the "Start Typing" button.
     startTypingButton.addEventListener('click', () => {
@@ -180,5 +267,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Initial Setup ---
     typewriterTextarea.value = "Hello, world! This is a typewriter effect demonstration.";
     startTypingButton.click();
+    
+    // Initial state setup for real-time mode.
+    toggleRealtimeMode(realtimeModeCheckbox.checked);
 });
-

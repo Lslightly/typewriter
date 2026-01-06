@@ -99,3 +99,21 @@ button:hover {
     opacity: 0;
 }
 
+.realtime-selection {
+    margin-top: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+}
+
+.realtime-selection input[type="checkbox"] {
+    cursor: pointer;
+}
+
+.realtime-selection label {
+    font-weight: normal;
+    color: #555;
+    cursor: pointer;
+}
+
