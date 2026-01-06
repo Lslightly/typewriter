@@ -11,7 +11,10 @@ document.addEventListener('DOMContentLoaded', () => {
     let currentText = ''; // The full string to be typed out.
     let charIndex = 0; // The index of the character to be typed next.
     let typingSpeed = 100; // Delay in milliseconds between characters for the setTimeout effect.
-    let animationFrameId; // To store the ID returned by requestAnimationFrame, so we can cancel it.
+    let animationFrameId; // To store the ID returned by requestAnimationFrame.
+    let colorChangeIntervalId; // To store the ID for the color-changing setInterval.
+    let isTypingComplete = false; // Flag to indicate if the typing animation has finished.
+    const changeColorDuration = 1000; // Duration for character to change its color.
 
     // This function now picks a random color from a predefined palette.
     function getRandomColor() {
@@ -24,66 +27,102 @@ document.addEventListener('DOMContentLoaded', () => {
             '#FFAB91', // Light Orange
             '#B39DDB'  // Light Purple
         ];
-        // Return a random color from the palette array.
         return colorPalette[Math.floor(Math.random() * colorPalette.length)];
     }
 
-    // This helper function creates a <span> element for a character, gives it a random color, and appends it to the output display.
+    // This helper function creates a <span> for a character, timestamping it for the animation.
     function appendColoredChar(char) {
         const span = document.createElement('span');
+        span.className = 'type-char';
         span.textContent = char;
+        // Store the creation time on the element itself.
+        span.dataset.createdAt = Date.now();
         span.style.color = getRandomColor();
         typewriterOutput.appendChild(span);
     }
+    
+    // This function updates character colors based on their age.
+    function updateAllColors() {
+        const now = Date.now();
+        const chars = typewriterOutput.querySelectorAll('.type-char:not(.done-coloring)');
+
+        chars.forEach(char => {
+            const createdAt = parseInt(char.dataset.createdAt, 10);
+            if (now - createdAt > changeColorDuration) {
+                // If 3 seconds have passed, turn it black and mark it as done.
+                char.style.color = 'black';
+                char.classList.add('done-coloring');
+            } else {
+                // Otherwise, give it a new random color.
+                char.style.color = getRandomColor();
+            }
+        });
+
+        // If typing is complete, check if all characters are done coloring.
+        if (isTypingComplete) {
+            const allChars = typewriterOutput.querySelectorAll('.type-char');
+            const doneChars = typewriterOutput.querySelectorAll('.done-coloring');
+            if (allChars.length > 0 && allChars.length === doneChars.length) {
+                // If all are done, stop the color-changing loop.
+                clearInterval(colorChangeIntervalId);
+                colorChangeIntervalId = null;
+            }
+        }
+    }
+
+    // This function stops the typing animation loops.
+    function stopTypingAnimations() {
+        if (animationFrameId) {
+            cancelAnimationFrame(animationFrameId);
+            animationFrameId = null;
+        }
+        isTypingComplete = true; // Set flag indicating typing is done.
+    }
 
     // --- Typewriter Effect using setTimeout ---
-    // This function types out the text character by character with a fixed delay.
     function typeWriterEffectTimeout() {
-        // Check if there are still characters left to type.
         if (charIndex < currentText.length) {
-            // Append the next character with a random color.
             appendColoredChar(currentText.charAt(charIndex));
-            // Move to the next character.
             charIndex++;
-            // Schedule the next character to be typed after 'typingSpeed' milliseconds.
             setTimeout(typeWriterEffectTimeout, typingSpeed);
+        } else {
+            stopTypingAnimations();
         }
     }
 
     // --- Typewriter Effect using requestAnimationFrame ---
-    // This approach is often smoother and more efficient as it syncs with the browser's refresh rate.
-    let lastFrameTime = 0; // Timestamp of the last frame.
-    const charsPerSecond = 10; // Desired typing speed.
-    const frameInterval = 1000 / charsPerSecond; // How many milliseconds should pass between each character.
+    let lastFrameTime = 0;
+    const charsPerSecond = 10;
+    const frameInterval = 1000 / charsPerSecond;
 
     function typeWriterEffectRaf(currentTime) {
-        // Initialize lastFrameTime on the first run.
         if (!lastFrameTime) lastFrameTime = currentTime;
-        
-        // Calculate the time elapsed since the last character was typed.
         const elapsed = currentTime - lastFrameTime;
 
-        // If enough time has passed, type the next character.
         if (elapsed > frameInterval) {
             if (charIndex < currentText.length) {
                 appendColoredChar(currentText.charAt(charIndex));
                 charIndex++;
-                lastFrameTime = currentTime; // Update the last frame time.
+                lastFrameTime = currentTime;
             } else {
-                // Stop the animation when all characters are typed.
-                cancelAnimationFrame(animationFrameId);
+                stopTypingAnimations();
                 return;
             }
         }
-        // Request the next animation frame to continue the loop.
         animationFrameId = requestAnimationFrame(typeWriterEffectRaf);
     }
 
-    // This function resets the output area and typing variables before starting a new effect.
+    // This function resets everything for a new animation.
     function resetTyping() {
-        typewriterOutput.innerHTML = ''; // Clear the display.
-        charIndex = 0; // Reset character index to the beginning.
-        // If a requestAnimationFrame loop is running, cancel it to prevent conflicts.
+        typewriterOutput.innerHTML = '';
+        charIndex = 0;
+        isTypingComplete = false;
+        // Clear the color-changing interval if it's running.
+        if (colorChangeIntervalId) {
+            clearInterval(colorChangeIntervalId);
+            colorChangeIntervalId = null;
+        }
+        // Clear the typing animation frame if it's running.
         if (animationFrameId) {
             cancelAnimationFrame(animationFrameId);
             animationFrameId = null;
@@ -92,28 +131,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Add an event listener to the "Start Typing" button.
     startTypingButton.addEventListener('click', () => {
-        // Reset everything first.
         resetTyping();
-        // Get the text from the textarea.
         currentText = typewriterTextarea.value;
-        // If the textarea is empty, use a default placeholder text.
         if (currentText.trim() === '') {
             currentText = "The quick brown fox jumps over the lazy dog.";
         }
 
-        // Check which radio button is selected and start the corresponding effect.
+        // Start the continuous color-changing loop.
+        colorChangeIntervalId = setInterval(updateAllColors, 500);
+
         if (effectTimeoutRadio.checked) {
             typeWriterEffectTimeout();
         } else if (effectRafRadio.checked) {
-            lastFrameTime = 0; // Reset the timer for the RAF effect.
-            typeWriterEffectRaf(0); // Start the RAF loop.
+            lastFrameTime = 0;
+            typeWriterEffectRaf(0);
         }
     });
 
     // --- Initial Setup ---
-    // Set a default text in the textarea when the page loads.
     typewriterTextarea.value = "Hello, world! This is a typewriter effect demonstration.";
-    // Automatically trigger a click on the "Start Typing" button to show the effect on page load.
     startTypingButton.click();
 });
 

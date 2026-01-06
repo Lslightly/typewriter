@@ -87,3 +87,9 @@ button:hover {
     font-weight: bold;
     color: #007bff;
 }
+
+.type-char {
+    /* Add a smooth transition for the color property */
+    transition: color 0.5s ease-in-out;
+}
+
