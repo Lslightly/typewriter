@@ -35,18 +35,23 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // This helper function creates a <span> for a character, used by both manual and real-time modes.
-    function createCharSpan(char) {
+    function createCharSpan(char, doneColoring) {
         const span = document.createElement('span');
         span.className = 'type-char';
         span.textContent = char;
         span.dataset.createdAt = Date.now();
-        span.style.color = getRandomColor();
+        if (doneColoring) {
+            span.style.color = 'black';
+            span.classList.add('done-coloring');
+        } else {
+            span.style.color = getRandomColor();
+        }
         return span;
     }
 
     // This helper function creates a <span> for a character and appends it to the output.
-    function appendColoredChar(char) {
-        const span = createCharSpan(char);
+    function appendColoredChar(char, doneColoring) {
+        const span = createCharSpan(char, doneColoring);
         typewriterOutput.appendChild(span);
     }
     
@@ -91,7 +96,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // --- Typewriter Effect using setTimeout ---
     function typeWriterEffectTimeout() {
         if (charIndex < currentText.length) {
-            appendColoredChar(currentText.charAt(charIndex));
+            appendColoredChar(currentText.charAt(charIndex), false);
             charIndex++;
             // Store the ID so we can cancel it if the user restarts the animation.
             typingTimeoutId = setTimeout(typeWriterEffectTimeout, typingSpeed);
@@ -111,7 +116,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (elapsed > frameInterval) {
             if (charIndex < currentText.length) {
-                appendColoredChar(currentText.charAt(charIndex));
+                appendColoredChar(currentText.charAt(charIndex), false);
                 charIndex++;
                 lastFrameTime = currentTime;
             } else {
@@ -217,7 +222,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
             // Immediately populate the display with the current text.
             for (const char of previousText) {
-                appendColoredChar(char);
+                appendColoredChar(char, true);
             }
         } else {
             if (colorChangeIntervalId) {
