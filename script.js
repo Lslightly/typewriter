@@ -14,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let animationFrameId; // To store the ID returned by requestAnimationFrame.
     let colorChangeIntervalId; // To store the ID for the color-changing setInterval.
     let isTypingComplete = false; // Flag to indicate if the typing animation has finished.
-    const changeColorDuration = 1000; // Duration for character to change its color.
+    const changeColorDuration = 1500; // Duration for character to change its color.
 
     // This function now picks a random color from a predefined palette.
     function getRandomColor() {
