@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Typewriter Effects</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Typewriter Effect Showcase</h1>
+
+        <div class="input-section">
+            <label for="typewriter-text">Enter your text:</label>
+            <textarea id="typewriter-text" rows="5" placeholder="Type your custom text here..."></textarea>
+            
+            <div class="effect-selection">
+                <input type="radio" id="effect-timeout" name="typewriter-effect" value="timeout" checked>
+                <label for="effect-timeout">setTimeout Effect</label>
+                <input type="radio" id="effect-raf" name="typewriter-effect" value="raf">
+                <label for="effect-raf">requestAnimationFrame Effect</label>
+            </div>
+
+            <button id="start-typing">Start Typing</button>
+        </div>
+
+        <div class="typewriter-display" id="typewriter-output">
+            <!-- Typewriter effect will be displayed here -->
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
