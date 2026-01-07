@@ -13,12 +13,14 @@ document.addEventListener('DOMContentLoaded', () => {
     const gradientColorPickersDiv = document.getElementById('gradient-color-pickers');
     const gradientStartColorInput = document.getElementById('gradient-start-color');
     const gradientEndColorInput = document.getElementById('gradient-end-color');
+    const typingSpeedSlider = document.getElementById('typing-speed');
+    const typingSpeedDisplay = document.getElementById('typing-speed-display');
 
     // Initialize variables to manage the typing process.
     let currentText = ''; // The full string to be typed out.
     let previousText = ''; // Stores the text content from the textarea in the previous step (for diffing).
     let charIndex = 0; // The index of the character to be typed next.
-    let typingSpeed = 100; // Delay in milliseconds between characters for the setTimeout effect.
+    let typingSpeed = typingSpeedSlider.value; // Delay in milliseconds between characters for the setTimeout effect.
     let typingTimeoutId; // To store the ID for the typing setTimeout loop.
     let animationFrameId; // To store the ID returned by requestAnimationFrame.
     let colorAnimationId; // To store the ID for the color animation loop.
@@ -26,6 +28,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const changeColorDuration = 1500; // Duration for character to change its color.
     let gradientStartColor; // Gradient start color specified by gradientStartColorInput initially.
     let gradientEndColor; // Gradient end color specified by gradientStartColorInput initially.
+
+    // Update typing speed when slider changes
+    typingSpeedSlider.addEventListener('input', (event) => {
+        const sliderValue = parseInt(event.target.value, 10);
+        typingSpeed = sliderValue;
+        typingSpeedDisplay.textContent = sliderValue;
+    });
 
     // Helper function to convert HSL to RGB.
     function hslToRgb(h, s, l) {
@@ -191,12 +200,11 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // --- Typewriter Effect using requestAnimationFrame ---
     let lastFrameTime = 0;
-    const charsPerSecond = 10;
-    const frameInterval = 1000 / charsPerSecond;
 
     function typeWriterEffectRaf(currentTime) {
         if (!lastFrameTime) lastFrameTime = currentTime;
         const elapsed = currentTime - lastFrameTime;
+        const frameInterval = typingSpeed; // Directly use typingSpeed as frameInterval
 
         if (elapsed > frameInterval) {
             if (charIndex < currentText.length) {

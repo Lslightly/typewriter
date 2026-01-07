@@ -1,6 +1,7 @@
 I want to deploy a GitHub Pages site that showcases a typewriter effect. I hope to demonstrate different JavaScript implementations of the typewriter effect using relatively simple code. Ideally, users should be to input custom text, and then see the corresponding typewriter effect. Additionally, it would be even better if the text color could change in a dazzling array of colors as it's being typed.
 
 ## DONE
+- **Added typing interval control:** Implemented a slider to allow users to dynamically adjust the typing interval (in ms) of the typewriter effect. Added "Fast" and "Slow" hints for better usability.
 - **Implemented a two-stage timer-based gradient effect:** In the first half of the animation duration, each character individually animates from a user-defined start color to an end color. In the second half, it animates from the end color to black.
 - **Improve the colorful text effect by:** Limiting the random colors to a curated palette of light, pleasant colors (e.g., red, yellow, light blue, green, pink) to ensure better readability and a more consistent aesthetic.
 - **Improve the colorful text effect by:**
