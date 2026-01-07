@@ -28,3 +28,31 @@
 │  Savings Highlight: 3,205,469 (68.3%) of input tokens were served from the cache, reducing costs.                                        │
 │                                                                                                                                          │
 ╰──────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
+
+╭───────────────────────────────────────────────────────────────────────────────────────────────────────────────╮
+│                                                                                                               │
+│  Agent powering down. Goodbye!                                                                                │
+│                                                                                                               │
+│  Interaction Summary                                                                                          │
+│  Session ID:                 4e58442b-86ca-4257-95a1-ac9eb0a331eb                                             │
+│  Tool Calls:                 131 ( ✓ 124 x 7 )                                                                │
+│  Success Rate:               94.7%                                                                            │
+│  User Agreement:             100.0% (127 reviewed)                                                            │
+│  Code Changes:               +366 -157                                                                        │
+│                                                                                                               │
+│  Performance                                                                                                  │
+│  Wall Time:                  2h 12m 55s                                                                       │
+│  Agent Active:               1h 1m 25s                                                                        │
+│    » API Time:               41m 54s (68.2%)                                                                  │
+│    » Tool Time:              19m 31s (31.8%)                                                                  │
+│                                                                                                               │
+│                                                                                                               │
+│  Model Usage                 Reqs   Input Tokens   Cache Reads  Output Tokens                                 │
+│  ────────────────────────────────────────────────────────────────────────────                                 │
+│  gemini-2.5-flash-lite         21         39,574             0          2,104                                 │
+│  gemini-2.5-flash              29        685,728       655,700         15,335                                 │
+│  gemini-2.5-pro               123      1,455,668    12,368,750         54,844                                 │
+│                                                                                                               │
+│  Savings Highlight: 13,024,450 (85.7%) of input tokens were served from the cache, reducing costs.            │
+│                                                                                                               │
+╰───────────────────────────────────────────────────────────────────────────────────────────────────────────────╯
