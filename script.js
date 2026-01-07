@@ -114,6 +114,7 @@ document.addEventListener('DOMContentLoaded', () => {
         span.className = 'type-char';
         span.textContent = char;
         span.dataset.createdAt = Date.now();
+        span.dataset.lastColorChange = 0; // Initialize last color change time
         if (doneColoring) {
             span.style.color = 'black';
             span.classList.add('done-coloring');
@@ -139,6 +140,8 @@ document.addEventListener('DOMContentLoaded', () => {
         chars.forEach(char => {
             const createdAt = parseInt(char.dataset.createdAt, 10);
             const elapsedTime = now - createdAt;
+            const lastColorChange = parseInt(char.dataset.lastColorChange, 10);
+            const colorChangeInterval = Math.random() * 300 + 100; // Random interval between 100ms and 400ms
 
             if (elapsedTime > changeColorDuration) {
                 // If changeColorDuration has passed, turn it black and mark it as done.
@@ -147,8 +150,10 @@ document.addEventListener('DOMContentLoaded', () => {
             } else {
                 // Otherwise, update its color based on the mode.
                 if (colorRandomRadio.checked) {
-                    // Random color flickers on each frame
-                    char.style.color = getRandomColor();
+                    if (now - lastColorChange > colorChangeInterval) {
+                        char.style.color = getRandomColor();
+                        char.dataset.lastColorChange = now;
+                    }
                 } else if (colorGradientRadio.checked) {
                     const stage1Duration = changeColorDuration * 0.4;
                     const stage2Duration = changeColorDuration * 0.2;
