@@ -15,6 +15,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const gradientEndColorInput = document.getElementById('gradient-end-color');
     const typingSpeedSlider = document.getElementById('typing-speed');
     const typingSpeedDisplay = document.getElementById('typing-speed-display');
+    const animationDurationSlider = document.getElementById('animation-duration');
+    const animationDurationDisplay = document.getElementById('animation-duration-display');
 
     // Initialize variables to manage the typing process.
     let currentText = ''; // The full string to be typed out.
@@ -25,7 +27,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let animationFrameId; // To store the ID returned by requestAnimationFrame.
     let colorAnimationId; // To store the ID for the color animation loop.
     let isTypingComplete = false; // Flag to indicate if the typing animation has finished.
-    const changeColorDuration = 1500; // Duration for character to change its color.
+    let changeColorDuration = animationDurationSlider.value; // Duration for character to change its color.
     let gradientStartColor; // Gradient start color specified by gradientStartColorInput initially.
     let gradientEndColor; // Gradient end color specified by gradientStartColorInput initially.
 
@@ -34,6 +36,13 @@ document.addEventListener('DOMContentLoaded', () => {
         const sliderValue = parseInt(event.target.value, 10);
         typingSpeed = sliderValue;
         typingSpeedDisplay.textContent = sliderValue;
+    });
+
+    // Update animation duration when slider changes
+    animationDurationSlider.addEventListener('input', (event) => {
+        const sliderValue = parseInt(event.target.value, 10);
+        changeColorDuration = sliderValue;
+        animationDurationDisplay.textContent = sliderValue;
     });
 
     // Helper function to convert HSL to RGB.
