@@ -23,6 +23,17 @@
 
             <button id="start-typing">Start Typing</button>
 
+            <div class="color-options">
+                <input type="radio" id="color-random" name="color-mode" value="random" checked>
+                <label for="color-random">Random Colors</label>
+                <input type="radio" id="color-gradient" name="color-mode" value="gradient">
+                <label for="color-gradient">Gradient Colors</label>
+                <div id="gradient-color-pickers" style="display: none;">
+                    Start: <input type="color" id="gradient-start-color" value="#E57373">
+                    End: <input type="color" id="gradient-end-color" value="#81D4FA">
+                </div>
+            </div>
+
             <div class="realtime-selection">
                 <input type="checkbox" id="realtime-mode">
                 <label for="realtime-mode">Enable Real-time Mode</label>
